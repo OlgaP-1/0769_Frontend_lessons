@@ -5,34 +5,68 @@
 // @description  try to take over the world!
 // @author       Parshina Olga
 // @match        https://yandex.ru/*
-// @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
+// @match        https://www.kuzov-auto.ru/*
 // @grant        none
 // ==/UserScript==
 
-//https://музыкалка-онлайн.рф/ https://xn----7sbab5aqcbiddtdj1e1g.xn--p1ai/
-//зашифровал не так как yandex, поэтому отключаю
-//let url_i = 'https://музыкалка-онлайн.рф';
-//let encoded = encodeURI(url_i);
-//console.log(encoded);
 
-
-let keywords = ['гобой', 'как звучит флейта', 'валторна'];
+let keywords = ['магазин для авто', 'обезжириватели и растворители для авто', 'ассортимент товаров и услуг в области авторемонта', 'Краски и компоненты'];
+let ya_input = document.getElementById('text');
 let keyword = keywords[getRandom(0, keywords.length)];
-function getRandom(min, max) {
-  return Math.floor(Math.random() * (max - min) + min);
-}
 let button = document.getElementsByClassName('button')[0];
 let links = document.links;
+let i = 0;
+
 
 if (button !== undefined) {
-  document.getElementById('text').value = keyword;
-  document.getElementsByClassName('button')[0].click();
+    let timerId = setInterval(() => {
+        ya_input.value += keyword[i];
+        i++;
+        if (i == keyword.length) {
+            clearInterval(timerId);
+            button.click();
+        }
+    }, 600);
+} else if(location.hostname == "www.kuzov-auto.ru") {
+    setInterval(()=>{
+        let index = getRandom(0,links.length);
+        if(getRandom(0,101)>=80) {
+            location.href = "https://yandex.ru";
+        }
+        else if (links[index].href.indexOf("www.kuzov-auto.ru") !== -1)
+            if (links[index].target){
+                links[index].removeAttribute('target').click(); // - добавила удаление таргета
+            }else{
+                links[index].click();
+            }
+    }, getRandom(2000,8000));
 } else {
-  for (let i = 0; i < links.length; i++) {
-    if (links[i].href.includes("xn----7sbab5aqcbiddtdj1e1g.xn--p1ai")) {
-      let link = links[i];
-      link.click();
-      break;
+    let nextYaPage = true;
+    for (let i = 0; i < links.length; i++) {
+        if (links[i].href.includes("www.kuzov-auto.ru")) {
+            let link = links[i];
+            setTimeout(() => {
+            }, getRandom(2000, 8500));
+            let nextYaPage = false;
+            setTimeout(() => {
+                link.click();
+            }, getRandom(2000, 7000));
+
+            break;
+        }
     }
-  }
+    if (document.querySelector("[aria-label='Страница 6']").innerText == "6") {
+         let nextYaPage = false;
+         location.href = "https://yandex.ru/";
+      }
+     if (nextYaPage) {
+         setTimeout(() => {
+             document.getElementsByClassName('pager__item_kind_next')[0].click();
+        }, getRandom(2000, 8500));
+     }
+}
+
+
+function getRandom(min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
 }
